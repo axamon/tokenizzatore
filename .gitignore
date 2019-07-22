@@ -2,3 +2,4 @@ tokenizzatore
 private.*
 ciphers/example/example
 *.pem
+conf.json
