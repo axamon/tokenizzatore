@@ -3,3 +3,6 @@ private.*
 ciphers/example/example
 *.pem
 conf.json
+ca/ca
+verificasms/verificasms
+tokenizzatore
