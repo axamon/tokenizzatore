@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/sha256"
 	"github.com/corvus-ch/shamir"
 	"log"
 	"os"
@@ -19,10 +20,6 @@ func main() {
 
 	m := make(map[byte][]byte)
 
-	// numchiavi := len(os.Args)
-
-	// chiave1 := os.Args[1]
-	// chiave2 := os.Args[2]
 
 	for _, chiave := range os.Args[1:] {
 
@@ -49,9 +46,12 @@ func main() {
 		log.Println(err.Error())
 	}
 
+	h := sha256.New()
+	h.Write(blob)
+	hashmasterkey := h.Sum(nil)
 
 	 
-	fmt.Println(string(blob))
+	fmt.Printf("%x\n", hashmasterkey)
 
 
 	
