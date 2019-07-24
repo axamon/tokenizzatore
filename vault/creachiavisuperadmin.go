@@ -1,6 +1,7 @@
 package vault
 
 import (
+	"io/ioutil"
 	"crypto/sha256"
 	"context"
 	"time"
@@ -65,6 +66,14 @@ func CreaChiaviSuperAdmin(numKeys, numMin int) {
 	}
 	fmt.Println("hash masterkey:")
 	fmt.Printf("%x\n",string(hashmasterkey))
+
+	// Salvo nel file l'hash della masterkey.
+	err = ioutil.WriteFile(Vaulthash, hashmasterkey, 0600)
+    if err != nil {
+		log.Println(err.Error())
+	}
+		
+
 	return
 }
 
@@ -73,7 +82,7 @@ func CreaChiaviSuperAdmin(numKeys, numMin int) {
 
 	func createPassword(ctx context.Context, length int) string {
 		rand.Seed(time.Now().UnixNano())
-		chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ-_" +
+		chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
 		"abcdefghijklmnopqrstuvwxyz" +
 		"0123456789")
 		
