@@ -6,3 +6,4 @@ conf.json
 ca/ca
 verificasms/verificasms
 tokenizzatore
+*.exe
