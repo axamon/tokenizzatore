@@ -12,6 +12,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/axamon/tokenizzatore/vault/creatoken"
+
 	"github.com/corvus-ch/shamir"
 )
 
@@ -24,6 +26,7 @@ func Apri() error {
 	// m mappa per archiviare le chiavi superAdmin
 	m := make(map[byte][]byte)
 
+	// numero minimo di chiavi SuperAdmin per aprire il vault.
 	threshold, err := recuperaThreshold()
 	if err != nil {
 		log.Println(err.Error())
@@ -72,9 +75,15 @@ func Apri() error {
 	aprivault(ctx, mastersecret)
 
 	if IsOpen() == true {
+
+		
 		fmt.Println("Il vault del Tokenizzatore è aperto")
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintf(w, "Benvenuto nel tokenizzatore, Lavori in corso\n")
+			tokengenerated, err := creatoken.OneWeekValidity()
+			if err != nil {
+				log.Println(err.Error())
+			}
+			fmt.Fprintf(w, "Benvenuto nel tokenizzatore, il tuo nuovo token:%s\n", tokengenerated)
 		})
 		log.Println(http.ListenAndServe(":9999", nil))
 	}
@@ -84,6 +93,7 @@ func Apri() error {
 
 func recuperaThreshold() (threshold int, err error) {
 
+	// Apre il file di configurazione del Vault VaultConf
 	jsonFile, err := os.Open(VaultConf)
 	if err != nil {
 		log.Println(err.Error())
@@ -95,11 +105,13 @@ func recuperaThreshold() (threshold int, err error) {
 
 	var conf VaultConfStr
 
+	// Parsa quanto è nel file di configurazione sulla variabile stuct.
 	err = json.Unmarshal(byteValue, &conf)
 	if err != nil {
 		log.Println(err.Error())
 	}
 
+	// Recupera il valore di threshold.
 	threshold = conf.Threshold
 
 	return threshold, err

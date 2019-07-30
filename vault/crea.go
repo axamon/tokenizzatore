@@ -62,10 +62,10 @@ func Crea(numKeys, threshold int) {
 		if err != nil {
 			log.Println(err.Error())
 		}
-		keyb := base64.StdEncoding.EncodeToString(keyn)
+		keyb64 := base64.StdEncoding.EncodeToString(keyn)
 
 		fmt.Println("Chiave ", n)
-		fmt.Println(keyb)
+		fmt.Println(keyb64)
 		fmt.Println()
 
 	}
