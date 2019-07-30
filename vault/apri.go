@@ -1,7 +1,7 @@
 package vault
 
 import (
-	"bufio"
+	"github.com/howeyc/gopass"
 	"context"
 	"crypto/sha256"
 	"encoding/base64"
@@ -36,9 +36,8 @@ func Apri() error {
 	// Richiede un numero di chiavi SuperAdmin pari a threshold.
 	for i := 0; i < threshold; i++ {
 		// Richiede inserimento di una chiave superAdmin
-		buf := bufio.NewReader(os.Stdin)
 		fmt.Printf("Inserisci la chiave SuperAdmin numero %d: > ", i+1)
-		chiave, err := buf.ReadBytes('\n') // TODO: Evitare che ci sia echo
+		chiave, err := gopass.GetPasswd()
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -52,6 +51,7 @@ func Apri() error {
 
 		// Inserisce in key la le info della chiave.
 		var key Key
+
 		err = json.Unmarshal(decoded, &key)
 		if err != nil {
 			log.Println(err.Error())

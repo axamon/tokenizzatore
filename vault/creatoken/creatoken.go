@@ -21,47 +21,67 @@
 package creatoken
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/md5"
+	"crypto/rand"
+	"encoding/hex"
+	"flag"
+	"fmt"
+	"io"
 	"strconv"
 	"strings"
 	"time"
-	"flag"
-	"fmt"
-	"crypto/cipher"
-	"crypto/aes"
-	"crypto/md5"
-	"crypto/rand"
-	"io"
-	"encoding/hex"
 )
 
-var giorni = flag.Int("d",7,"Giorni validità token: default 7")
-var user = flag.String("u","","Username")
-var pass = flag.String("p","","Password")
+const simmetricpass = "vvkidtbcjujhtglivdjtlkgtetbtdejlivgukincfhdt"
 
+var giorni = flag.Int("d", 7, "Giorni validità token in giorni")
+var user = flag.String("user", "", "Username")
+var pass = flag.String("pass", "", "Password")
 
-func OneWeekValidity() (token string, err error) {
-
-
+// TokenWithCredentials crea un token con user e pass all'interno.
+func TokenWithCredentials(user, pass string) (token string, err error) {
 	oggi := time.Now()
-	scadenzaUmana := oggi.Add(time.Duration(7)*time.Hour*24)
-	
+	scadenzaUmana := oggi.Add(time.Duration(7) * time.Hour * 24)
+
 	scadenza := scadenzaUmana.Unix()
 
 	scadenzaStr := strconv.Itoa(int(scadenza))
 
 	fmt.Println("Scadenza token: ", scadenzaUmana.Format("2006-01-02T15:04 UTC"))
 	var elementi []string
-    elementi = append(elementi, scadenzaStr, "test", "test")
-	str := strings.Join(elementi," ")
+	elementi = append(elementi, scadenzaStr, user, pass)
+	str := strings.Join(elementi, " ")
 
-	c := encrypt([]byte(str), "vvkidtbcjujhtglivdjtlkgtetbtdejlivgukincfhdt")
+	c := encrypt([]byte(str), simmetricpass)
 
 	token = hex.EncodeToString(c)
-
 
 	return token, err
 }
 
+// OneWeekValidity crea un token con la durata di sette giorni.
+func OneWeekValidity() (token string, err error) {
+
+	oggi := time.Now()
+	scadenzaUmana := oggi.Add(time.Duration(7) * time.Hour * 24)
+
+	scadenza := scadenzaUmana.Unix()
+
+	scadenzaStr := strconv.Itoa(int(scadenza))
+
+	fmt.Println("Scadenza token: ", scadenzaUmana.Format("2006-01-02T15:04 UTC"))
+	var elementi []string
+	elementi = append(elementi, scadenzaStr, "test", "test")
+	str := strings.Join(elementi, " ")
+
+	c := encrypt([]byte(str), simmetricpass)
+
+	token = hex.EncodeToString(c)
+
+	return token, err
+}
 
 func createHash(key string) string {
 	hasher := md5.New()

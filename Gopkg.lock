@@ -18,6 +18,14 @@
   revision = "5c77e993015224956afb02ba457c9f8533943787"
 
 [[projects]]
+  digest = "1:240ab29ba1b9037843e8b6963990fa9f94f400cfb048ceda16cec37148bd368a"
+  name = "github.com/corvus-ch/shamir"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "7021e2e97250df11b66cd689b5b65e9e2e0d5203"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:440028f55cb322d8cb5b9d5ebec298a00b7d74690a658fe6b1c0c0b44341bfae"
   name = "github.com/go-ole/go-ole"
   packages = [
@@ -27,6 +35,14 @@
   pruneopts = "UT"
   revision = "97b6244175ae18ea6eef668034fd6565847501c9"
   version = "v1.2.4"
+
+[[projects]]
+  branch = "master"
+  digest = "1:0778dc7fce1b4669a8bfa7ae506ec1f595b6ab0f8989c1c0d22a8ca1144e9972"
+  name = "github.com/howeyc/gopass"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "bf9dde6d0d2c004a008c27aaee91170c786f6db8"
 
 [[projects]]
   digest = "1:06beb0267d371682c86038b27566af800a1cb59e07cc099c904c945008b4392e"
@@ -60,6 +76,22 @@
   version = "1.0"
 
 [[projects]]
+  digest = "1:7d234d4f8223364f6887586e21b828c7f27e184a8ddaa719a3a3d96e45919be5"
+  name = "github.com/tobischo/gokeepasslib"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "6f72869804c7f7f8408939871abddfa633ee6204"
+  version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:bbe51412d9915d64ffaa96b51d409e070665efc5194fcf145c4a27d4133107a4"
+  name = "golang.org/x/crypto"
+  packages = ["ssh/terminal"]
+  pruneopts = "UT"
+  revision = "4def268fd1a49955bfb3dda92fe3db4f924f2285"
+
+[[projects]]
   branch = "master"
   digest = "1:31d44814b45607afa77c6e8ef20ea8bacc1d1053fe084440c874f311732e7ec3"
   name = "golang.org/x/sys"
@@ -75,8 +107,11 @@
   analyzer-version = 1
   input-imports = [
     "github.com/axamon/easyapiclient",
+    "github.com/corvus-ch/shamir",
+    "github.com/howeyc/gopass",
     "github.com/shirou/gopsutil/host",
     "github.com/tkanos/gonfig",
+    "github.com/tobischo/gokeepasslib",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

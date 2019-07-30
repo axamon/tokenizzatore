@@ -16,7 +16,8 @@ type VaultConfStr struct {
 	Threshold int
 }
 
-var Version = "ver.1b"
+// Version è la versione del software.
+var Version = "ver.2b"
 
 // Key contiene i bytes delle chiavi per superAdmin
 type Key struct {
