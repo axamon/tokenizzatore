@@ -1,7 +1,6 @@
 package vault
 
 import (
-	"github.com/howeyc/gopass"
 	"context"
 	"crypto/sha256"
 	"encoding/base64"
@@ -12,13 +11,15 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/howeyc/gopass"
+
 	"github.com/axamon/tokenizzatore/vault/creatoken"
 
 	"github.com/corvus-ch/shamir"
 )
 
 // Apri apre il Vault verificando che le chiavi passate sblocchino la masterkey.
-func Apri() error {
+func Apri(vaulthash string) error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -49,7 +50,7 @@ func Apri() error {
 			log.Println("decode error:", err)
 		}
 
-		// Inserisce in key la le info della chiave.
+		// Inserisce in key le info della chiave.
 		var key Key
 
 		err = json.Unmarshal(decoded, &key)
@@ -72,18 +73,17 @@ func Apri() error {
 
 	mastersecret := string(blob)
 
-	aprivault(ctx, mastersecret)
+	aprivault(ctx, vaulthash, mastersecret)
 
 	if IsOpen() == true {
 
-		
 		fmt.Println("Il vault del Tokenizzatore è aperto")
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			tokengenerated, err := creatoken.OneWeekValidity()
 			if err != nil {
 				log.Println(err.Error())
 			}
-			fmt.Fprintf(w, "Benvenuto nel tokenizzatore, il tuo nuovo token:%s\n", tokengenerated)
+			fmt.Fprintf(w, "Benvenuto nel tokenizzatore, ecco il tuo nuovo token:\n\n%s\n", tokengenerated)
 		})
 		log.Println(http.ListenAndServe(":9999", nil))
 	}
@@ -117,9 +117,9 @@ func recuperaThreshold() (threshold int, err error) {
 	return threshold, err
 }
 
-func aprivault(ctx context.Context, mastersecret string) error {
+func aprivault(ctx context.Context, vaulthash, mastersecret string) error {
 
-	hashmasterkeyfromfile, err := ioutil.ReadFile(Vaulthash)
+	hashmasterkeyfromfile, err := ioutil.ReadFile(vaulthash)
 	if err != nil {
 		log.Println(err.Error())
 	}
