@@ -21,9 +21,9 @@ const (
 		
 		
 		
-// Verificiatoken verifica che il token sia valido.		
+// Verificatoken verifica che il token sia valido.		
 func Verificatoken() (err error) {
-		
+	
 	err = gonfig.GetConf("conf.json", &configuration)
 	if err != nil {
 		log.Printf("ERROR Problema con il file di configurazione conf.json: %s\n", err.Error())

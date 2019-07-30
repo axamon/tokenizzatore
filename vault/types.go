@@ -23,3 +23,10 @@ type Key struct {
 	K byte   `json:"k"`
 	V []byte `jon:"v"`
 }
+
+// Configuration contiene gli elementi per configurare il tool.
+type Configuration struct {
+	Token string `json:"token"`
+}
+
+var configuration Configuration

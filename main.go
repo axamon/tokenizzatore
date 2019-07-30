@@ -55,17 +55,15 @@ func main() {
 	fmt.Println(string(messaggio), isSigned)
 
 	// create a new server which requires client authentication
-	s = httptest.NewUnstartedServer(http.HandlerFunc(ok))
-	s.TLS = &tls.Config{
-		Certificates: []tls.Certificate{servTLSCert},
-		ClientAuth:   tls.RequireAndVerifyClientCert,
-	}
+	// s := httptest.NewUnstartedServer(http.HandlerFunc(ok))
+	// s.TLS = &tls.Config{
+	// 	Certificates: []tls.Certificate{servTLSCert},
+	// 	ClientAuth:   tls.RequireAndVerifyClientCert,
+	// }
 
-	s.StartTLS()
-	_, err = client.Get(s.URL)
-	s.Close()
+	// s.StartTLS()
+	// _, err = client.Get(s.URL)
+	// s.Close()
 	fmt.Println(err)
 
-
-	
 }
