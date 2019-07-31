@@ -18,6 +18,8 @@ import (
 	"github.com/corvus-ch/shamir"
 )
 
+var isOpen = false
+
 // Apri apre il Vault verificando che le chiavi passate sblocchino la masterkey.
 func Apri(vaulthash string) error {
 
@@ -35,13 +37,21 @@ func Apri(vaulthash string) error {
 
 	fmt.Printf("Per Aprire il Vault dovrai inserire %d chiavi SuperAdmin\n", threshold)
 	// Richiede un numero di chiavi SuperAdmin pari a threshold.
-	for i := 0; i < threshold; i++ {
+	//for i := 0; i < threshold; i++ {
+
+	var i int
+	for {
+
 		// Richiede inserimento di una chiave superAdmin
 		fmt.Printf("Inserisci la chiave SuperAdmin numero %d: > ", i+1)
 		chiave, err := gopass.GetPasswd()
 		if err != nil {
+			if err.Error() == "interrupted" {
+				os.Exit(1)
+			}
 			fmt.Println(err)
 		}
+		i++
 
 		// Elabora la chiave passata da base64 a slice di bytes.
 		var decoded []byte
@@ -62,31 +72,39 @@ func Apri(vaulthash string) error {
 		cs := []byte(key.V)
 		m[c] = cs
 
+		// Almeno 2 chiavi devono essere passate.
+		if i < 2 {
+			continue
+		}
+		blob, err := shamir.Combine(m)
+		if err != nil {
+			log.Println(err.Error())
+		}
+
+		// fmt.Println(string(blob))
+
+		mastersecret := string(blob)
+
+		aprivault(ctx, vaulthash, mastersecret)
+
+		//	fmt.Println(isOpen) // debug
+
+		// Se il vault si apre esce dal ciclo for.
+		if isOpen == true {
+			break
+		}
+
 	}
 
-	blob, err := shamir.Combine(m)
-	if err != nil {
-		log.Println(err.Error())
-	}
-
-	// fmt.Println(string(blob))
-
-	mastersecret := string(blob)
-
-	aprivault(ctx, vaulthash, mastersecret)
-
-	if IsOpen() == true {
-
-		fmt.Println("Il vault del Tokenizzatore è aperto")
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			tokengenerated, err := creatoken.OneWeekValidity()
-			if err != nil {
-				log.Println(err.Error())
-			}
-			fmt.Fprintf(w, "Benvenuto nel tokenizzatore, ecco il tuo nuovo token:\n\n%s\n", tokengenerated)
-		})
-		log.Println(http.ListenAndServe(":9999", nil))
-	}
+	fmt.Println("Il vault del Tokenizzatore è aperto")
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		tokengenerated, err := creatoken.OneWeekValidity()
+		if err != nil {
+			log.Println(err.Error())
+		}
+		fmt.Fprintf(w, "Benvenuto nel tokenizzatore, ecco il tuo nuovo token:\n\n%s\n", tokengenerated)
+	})
+	log.Println(http.ListenAndServe(":9999", nil))
 
 	return err
 }
@@ -119,21 +137,25 @@ func recuperaThreshold() (threshold int, err error) {
 
 func aprivault(ctx context.Context, vaulthash, mastersecret string) error {
 
+	// Recupera hash della mastersecret dal file dove è stata salvata.
 	hashmasterkeyfromfile, err := ioutil.ReadFile(vaulthash)
 	if err != nil {
 		log.Println(err.Error())
 	}
 
-	// TODO aprire veramente il vault
+	// Calcola hash della mastersecret passata come variabile.
 	h := sha256.New()
 	h.Write([]byte(mastersecret))
 	hashmasterkey := h.Sum(nil)
 
-	// fmt.Printf("%x\n", hashmasterkey)
+	// fmt.Printf("%x\n", hashmasterkey) // Debug
 
+	// Verifica se i due hash corrispondono.
 	if string(hashmasterkeyfromfile) == string(hashmasterkey) {
 
-		fmt.Println("ok")
+		isOpen = true
+
+		// fmt.Println("ok")
 
 		err := os.Setenv("VAULTISOPEN", "open")
 		if err != nil {
