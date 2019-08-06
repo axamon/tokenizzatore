@@ -1,64 +1,66 @@
-
 package main
 
 import (
-	"os"
-	"strings"
-	"github.com/tkanos/gonfig"
-	"time"
-	"strconv"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/md5"
 	"encoding/hex"
 	"log"
-	"crypto/cipher"
-	"crypto/aes"
-	"crypto/md5"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/tkanos/gonfig"
 )
-		
-		
+
 const (
-		passphrase = "vvkidtbcjujhtglivdjtlkgtetbtdejlivgukincfhdt"
-	)
-		
-		
-		
-// Verificatoken verifica che il token sia valido.		
+	passphrase = "vvkidtbcjujhtglivdjtlkgtetbtdejlivgukincfhdt"
+)
+
+// Configuration contiene gli elementi per configurare il tool.
+type Configuration struct {
+	Token string `json:"token"`
+}
+
+var configuration Configuration
+
+// Verificatoken verifica che il token sia valido.
 func Verificatoken() (err error) {
-	
+
 	err = gonfig.GetConf("conf.json", &configuration)
 	if err != nil {
 		log.Printf("ERROR Problema con il file di configurazione conf.json: %s\n", err.Error())
 		return
 	}
-		
+
 	credBlob, _ := hex.DecodeString(configuration.Token)
 	userEpass := string(decrypt(credBlob))
 	credenziali := strings.Split(userEpass, " ")
-		
+
 	scadenza, err := strconv.Atoi(credenziali[0])
 	if err != nil {
 		log.Printf("ERROR Impossibile parsare scadenza del token: %s\n", err.Error())
 	}
-				// username = credenziali[1]
-				// password = credenziali[2]
-		
+	// username = credenziali[1]
+	// password = credenziali[2]
+
 	oggi := time.Now().Unix()
-		
+
 	if oggi > int64(scadenza) {
 		log.Println("Token scaduto. Impossibile proseguire.")
-			os.Exit(1)
-		}
-		
-		return err
+		os.Exit(1)
 	}
-		
-		
+
+	return err
+}
+
 func createHash(key string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(key))
 	return hex.EncodeToString(hasher.Sum(nil))
 }
-		
-		
+
 func decrypt(data []byte) []byte {
 	key := []byte(createHash(passphrase))
 	block, err := aes.NewCipher(key)
