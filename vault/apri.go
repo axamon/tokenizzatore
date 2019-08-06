@@ -35,6 +35,8 @@ func Apri(vaulthash string) error {
 		log.Println(err.Error())
 	}
 
+	go func() {
+
 	fmt.Printf("Per Aprire il Vault dovrai inserire %d chiavi SuperAdmin\n", threshold)
 	// Richiede un numero di chiavi SuperAdmin pari a threshold.
 	//for i := 0; i < threshold; i++ {
@@ -44,7 +46,7 @@ func Apri(vaulthash string) error {
 
 		// Richiede inserimento di una chiave superAdmin
 		fmt.Printf("Inserisci la chiave SuperAdmin numero %d: > ", i+1)
-		chiave, err := gopass.GetPasswd()
+		chiave, err := gopass.GetPasswdMasked()
 		if err != nil {
 			if err.Error() == "interrupted" {
 				os.Exit(1)
@@ -91,20 +93,43 @@ func Apri(vaulthash string) error {
 
 		// Se il vault si apre esce dal ciclo for.
 		if isOpen == true {
-			break
+			return
 		}
 
 	}
+}()
 
-	fmt.Println("Il vault del Tokenizzatore è aperto")
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		tokengenerated, err := creatoken.OneWeekValidity()
-		if err != nil {
-			log.Println(err.Error())
+		if isOpen == true {
+			tokengenerated, err := creatoken.OneWeekValidity()
+			if err != nil {
+				log.Println(err.Error())
+			}
+			fmt.Fprintf(w, "Benvenuto nel tokenizzatore, ecco il tuo nuovo token:\n\n%s\n", tokengenerated)
 		}
-		fmt.Fprintf(w, "Benvenuto nel tokenizzatore, ecco il tuo nuovo token:\n\n%s\n", tokengenerated)
+		if isOpen == false {
+			fmt.Fprintf(w, "Il tokenizzatore è chiuso. Contatta i SuperAdmin per riaprirlo.")
+		}
 	})
 	log.Println(http.ListenAndServe(":9999", nil))
+	fmt.Scanln()
+	fmt.Println("done")
+
+	// fmt.Println("Il vault del Tokenizzatore è aperto")
+	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	// 	if isOpen == true {
+	// 		tokengenerated, err := creatoken.OneWeekValidity()
+	// 		if err != nil {
+	// 			log.Println(err.Error())
+	// 		}
+	// 		fmt.Fprintf(w, "Benvenuto nel tokenizzatore, ecco il tuo nuovo token:\n\n%s\n", tokengenerated)
+	// 	}
+	// 	if isOpen == false {
+	// 		fmt.Fprintf(w, "Il tokenizzatore è chisuo")
+	// 	}
+	// })
+	// log.Println(http.ListenAndServe(":9999", nil))
 
 	return err
 }
