@@ -37,66 +37,66 @@ func Apri(vaulthash string) error {
 
 	go func() {
 
-	fmt.Printf("Per Aprire il Vault dovrai inserire %d chiavi SuperAdmin\n", threshold)
-	// Richiede un numero di chiavi SuperAdmin pari a threshold.
-	//for i := 0; i < threshold; i++ {
+		fmt.Printf("Per Aprire il Vault dovrai inserire %d chiavi SuperAdmin\n", threshold)
+		// Richiede un numero di chiavi SuperAdmin pari a threshold.
+		//for i := 0; i < threshold; i++ {
 
-	var i int
-	for {
+		var i int
+		for {
 
-		// Richiede inserimento di una chiave superAdmin
-		fmt.Printf("Inserisci la chiave SuperAdmin numero %d: > ", i+1)
-		chiave, err := gopass.GetPasswdMasked()
-		if err != nil {
-			if err.Error() == "interrupted" {
-				os.Exit(1)
+			// Richiede inserimento di una chiave superAdmin
+			fmt.Printf("Inserisci la chiave SuperAdmin numero %d: > ", i+1)
+			chiave, err := gopass.GetPasswdMasked()
+			if err != nil {
+				if err.Error() == "interrupted" {
+					os.Exit(1)
+				}
+				fmt.Println(err)
 			}
-			fmt.Println(err)
+			i++
+
+			// Elabora la chiave passata da base64 a slice di bytes.
+			var decoded []byte
+			decoded, err = base64.StdEncoding.DecodeString(string(chiave))
+			if err != nil {
+				log.Println("decode error:", err)
+			}
+
+			// Inserisce in key le info della chiave.
+			var key Key
+
+			err = json.Unmarshal(decoded, &key)
+			if err != nil {
+				log.Println(err.Error())
+			}
+
+			c := byte(key.K)
+			cs := []byte(key.V)
+			m[c] = cs
+
+			// Almeno 2 chiavi devono essere passate.
+			if i < 2 {
+				continue
+			}
+			blob, err := shamir.Combine(m)
+			if err != nil {
+				log.Println(err.Error())
+			}
+
+			// fmt.Println(string(blob))
+
+			mastersecret := string(blob)
+
+			aprivault(ctx, vaulthash, mastersecret)
+
+			//	fmt.Println(isOpen) // debug
+
+			// Se il vault si apre esce dal ciclo for.
+			if isOpen == true {
+				return
+			}
+
 		}
-		i++
-
-		// Elabora la chiave passata da base64 a slice di bytes.
-		var decoded []byte
-		decoded, err = base64.StdEncoding.DecodeString(string(chiave))
-		if err != nil {
-			log.Println("decode error:", err)
-		}
-
-		// Inserisce in key le info della chiave.
-		var key Key
-
-		err = json.Unmarshal(decoded, &key)
-		if err != nil {
-			log.Println(err.Error())
-		}
-
-		c := byte(key.K)
-		cs := []byte(key.V)
-		m[c] = cs
-
-		// Almeno 2 chiavi devono essere passate.
-		if i < 2 {
-			continue
-		}
-		blob, err := shamir.Combine(m)
-		if err != nil {
-			log.Println(err.Error())
-		}
-
-		// fmt.Println(string(blob))
-
-		mastersecret := string(blob)
-
-		aprivault(ctx, vaulthash, mastersecret)
-
-		//	fmt.Println(isOpen) // debug
-
-		// Se il vault si apre esce dal ciclo for.
-		if isOpen == true {
-			return
-		}
-
-	}
 }()
 
 
