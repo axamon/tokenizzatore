@@ -83,6 +83,28 @@ func OneWeekValidity() (token string, err error) {
 	return token, err
 }
 
+// FiveMinutes crea un token con durata di 5 minuti.
+func FiveMinutes() (token string, err error) {
+
+	oggi := time.Now()
+	scadenzaUmana := oggi.Add(time.Duration(7) * time.Minute * 5)
+
+	scadenza := scadenzaUmana.Unix()
+
+	scadenzaStr := strconv.Itoa(int(scadenza))
+
+	fmt.Println("Scadenza token: ", scadenzaUmana.Format("2006-01-02T15:04 UTC"))
+	var elementi []string
+	elementi = append(elementi, scadenzaStr, "test", "test")
+	str := strings.Join(elementi, " ")
+
+	c := encrypt([]byte(str), simmetricpass)
+
+	token = hex.EncodeToString(c)
+
+	return token, err
+}
+
 func createHash(key string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(key))

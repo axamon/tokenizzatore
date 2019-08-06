@@ -97,12 +97,11 @@ func Apri(vaulthash string) error {
 			}
 
 		}
-}()
-
+	}()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if isOpen == true {
-			tokengenerated, err := creatoken.OneWeekValidity()
+			tokengenerated, err := creatoken.FiveMinutes()
 			if err != nil {
 				log.Println(err.Error())
 			}
