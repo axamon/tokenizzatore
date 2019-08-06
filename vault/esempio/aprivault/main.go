@@ -9,7 +9,7 @@ import (
 	"github.com/axamon/tokenizzatore/vault"
 )
 
-var file = flag.String("f", "../crea/vaulthash", "File vaulthash da aprire")
+var file = flag.String("f", "vaulthash", "File vaulthash da aprire")
 
 func main() {
 
