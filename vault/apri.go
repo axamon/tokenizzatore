@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/go-chi/chi"
+
 	"github.com/howeyc/gopass"
 
 	"github.com/axamon/tokenizzatore/vault/creatoken"
@@ -99,7 +101,24 @@ func Apri(vaulthash string) error {
 		}
 	}()
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	r := chi.NewRouter()
+
+	r.Post("/superadmin/{key}", func(w http.ResponseWriter, r *http.Request) {
+		superadminkey := chi.URLParam(r, "key")
+		fmt.Println(superadminkey)
+
+	})
+
+	r.Get("/stato", func(w http.ResponseWriter, r *http.Request) {
+		switch isOpen {
+		case true:
+			fmt.Fprintf(w, "Il tokenizzatore è attivo")
+		case false:
+			fmt.Fprintf(w, "Il tokenizzatore è disattivato")
+		}
+	})
+
+	r.Get("/token", func(w http.ResponseWriter, r *http.Request) {
 		if isOpen == true {
 			tokengenerated, err := creatoken.FiveMinutes()
 			if err != nil {
@@ -111,7 +130,9 @@ func Apri(vaulthash string) error {
 			fmt.Fprintf(w, "Il tokenizzatore è chiuso. Contatta i SuperAdmin per riaprirlo.")
 		}
 	})
-	log.Println(http.ListenAndServe(":9999", nil))
+
+	http.ListenAndServe(":9999", r)
+
 	fmt.Scanln()
 	fmt.Println("done")
 
