@@ -186,7 +186,7 @@ func Apri(vaulthash string) error {
 			if err != nil {
 				log.Println(err.Error())
 			}
-			fmt.Fprintf(w, "Benvenuto nel tokenizzatore, ecco il tuo nuovo token:\n\n%s\n", tokengenerated)
+			fmt.Fprintf(w, tokengenerated)
 		}
 		if isOpen == false {
 			fmt.Fprintf(w, "Il tokenizzatore è chiuso. Contatta i SuperAdmin per riaprirlo.")
