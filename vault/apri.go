@@ -173,9 +173,9 @@ func Apri(vaulthash string) error {
 	r.Get("/stato", func(w http.ResponseWriter, r *http.Request) {
 		switch isOpen {
 		case true:
-			fmt.Fprintf(w, "Il tokenizzatore è attivo")
+			fmt.Fprintf(w, "aperto")
 		case false:
-			fmt.Fprintf(w, "Il tokenizzatore è disattivato")
+			fmt.Fprintf(w, "chiuso")
 		}
 	})
 
