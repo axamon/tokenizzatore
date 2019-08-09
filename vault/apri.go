@@ -2,7 +2,6 @@ package vault
 
 import (
 	"context"
-	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -19,6 +18,7 @@ import (
 	"github.com/axamon/tokenizzatore/vault/creatoken"
 
 	"github.com/corvus-ch/shamir"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var isOpen = false
@@ -235,16 +235,10 @@ func aprivault(ctx context.Context, vaulthash string, mastersecret []byte) error
 		log.Println(err.Error())
 	}
 
-	// Calcola hash della mastersecret passata come variabile.
-	h := sha256.New()
-	h.Write(mastersecret)
-	hashmasterkey := h.Sum(nil)
-
-	// fmt.Printf("%x\n", hashmasterkey) // Debug
+	err = bcrypt.CompareHashAndPassword(hashmasterkeyfromfile, mastersecret)
 
 	// Verifica se i due hash corrispondono.
-	if string(hashmasterkeyfromfile) == string(hashmasterkey) {
-
+	if err == nil {
 		isOpen = true
 
 		// fmt.Println("ok")

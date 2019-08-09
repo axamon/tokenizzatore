@@ -2,7 +2,6 @@ package vault
 
 import (
 	"context"
-	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -10,10 +9,12 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/corvus-ch/shamir"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Crea crea la mastersecret, il vault.db e le chiavi SuperAdmin per avviare o aprire il vault del tokenizzatore.
@@ -39,10 +40,8 @@ func Crea(numKeys, threshold int) {
 		log.Println(err.Error())
 	}
 
-	// Creo hash della mastersecret
-	h := sha256.New()
-	h.Write([]byte(mastersecret))
-	hashmastersecret := h.Sum(nil)
+	// Genera hash della masterkey con bcrypt
+	hashmastersecret, err := bcrypt.GenerateFromPassword([]byte(mastersecret), bcrypt.DefaultCost)
 
 	// Salvo nel file Vaulthash l'hash della mastersecret.
 	err = ioutil.WriteFile(Vaulthash, hashmastersecret, 0600)
@@ -50,6 +49,7 @@ func Crea(numKeys, threshold int) {
 		log.Println(err.Error())
 	}
 
+	// n conta il numero di chiavi Superadmin inserito
 	n := 0
 	fmt.Printf("Creo %d chiavi, minimo %d serviranno per sbloccare la password\n", numKeys, threshold)
 	for c, cs := range m {
@@ -69,8 +69,6 @@ func Crea(numKeys, threshold int) {
 		fmt.Println()
 
 	}
-	// fmt.Println("hash masterkey:")
-	// fmt.Printf("%x\n", string(hashmastersecret))
 
 	// Cifra dei dati con la mastersecret
 	// data := simmetric.Encrypt([]byte("DB VAult"), mastersecret)
@@ -109,7 +107,48 @@ func createMastersecret(ctx context.Context, length int) string {
 	for i := 0; i < length; i++ {
 		b.WriteRune(chars[rand.Intn(len(chars))])
 	}
+	// token := make([]byte, length)
+	// rand.Read(token)
+
+	// fmt.Println(token)
+
 	str := b.String()
 
 	return str
+}
+
+func random(min, max int) int {
+	return rand.Intn(max-min) + min
+}
+
+func generatepass() {
+	MIN := 0
+	MAX := 94
+	SEED := time.Now().Unix()
+	var LENGTH int64 = 8
+
+	arguments := os.Args
+	switch len(arguments) {
+	case 2:
+		LENGTH, _ = strconv.ParseInt(os.Args[1], 10, 64)
+		if LENGTH <= 0 {
+			LENGTH = 8
+		}
+	default:
+		fmt.Println("Using default values!")
+	}
+
+	rand.Seed(SEED)
+	startChar := "!"
+	var i int64 = 1
+	for {
+		myRand := random(MIN, MAX)
+		newChar := string(startChar[0] + byte(myRand))
+		fmt.Print(newChar)
+		if i == LENGTH {
+			break
+		}
+		i++
+	}
+	fmt.Println()
 }
