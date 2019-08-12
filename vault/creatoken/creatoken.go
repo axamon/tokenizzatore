@@ -38,6 +38,8 @@ import (
 
 const simmetricpass = "vvkidtbcjujhtglivdjtlkgtetbtdejlivgukincfhdt"
 
+// Dinamicsimmetricpass è la password dinamica che cambia a ogni riavvio
+// del vault.
 var Dinamicsimmetricpass = generatepass(context.TODO(), 14)
 
 var giorni = flag.Int("d", 7, "Giorni validità token in giorni")
