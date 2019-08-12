@@ -137,7 +137,7 @@ func generatepass(ctx context.Context, length int) string {
 	m.Seed(time.Now().UnixNano())
 	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
 		"abcdefghijklmnopqrstuvwxyz" +
-		"0123456789" + ".-_@;%£")
+		"0123456789")
 
 	var b strings.Builder
 	for i := 0; i < length; i++ {
