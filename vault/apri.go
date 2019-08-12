@@ -179,6 +179,16 @@ func Apri(vaulthash string) error {
 		}
 	})
 
+	// Per richiedere la Dinamicsimmetricpass
+	r.Get("/dinamicsimmetricpass", func(w http.ResponseWriter, r *http.Request) {
+		if isOpen == true {
+			fmt.Fprintf(w, creatoken.Dinamicsimmetricpass)
+		}
+		if isOpen == false {
+			fmt.Fprintf(w, "Il tokenizzatore è chiuso. Contatta i SuperAdmin per riaprirlo.")
+		}
+	})
+
 	// Per richiedere un nuovo token da web
 	r.Get("/token", func(w http.ResponseWriter, r *http.Request) {
 		if isOpen == true {

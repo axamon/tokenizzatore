@@ -21,6 +21,7 @@
 package creatoken
 
 import (
+	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/md5"
@@ -29,12 +30,15 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	m "math/rand"
 	"strconv"
 	"strings"
 	"time"
 )
 
 const simmetricpass = "vvkidtbcjujhtglivdjtlkgtetbtdejlivgukincfhdt"
+
+var Dinamicsimmetricpass = generatepass(context.TODO(), 14)
 
 var giorni = flag.Int("d", 7, "Giorni validità token in giorni")
 var user = flag.String("user", "", "Username")
@@ -112,7 +116,9 @@ func createHash(key string) string {
 }
 
 func encrypt(data []byte, passphrase string) []byte {
-	block, _ := aes.NewCipher([]byte(createHash(passphrase)))
+//	block, _ := aes.NewCipher([]byte(createHash(passphrase)))
+	block, _ := aes.NewCipher([]byte(createHash(Dinamicsimmetricpass)))
+
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
 		panic(err.Error())
@@ -123,4 +129,20 @@ func encrypt(data []byte, passphrase string) []byte {
 	}
 	ciphertext := gcm.Seal(nonce, nonce, data, nil)
 	return ciphertext
+}
+
+func generatepass(ctx context.Context, length int) string {
+	m.Seed(time.Now().UnixNano())
+	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+		"abcdefghijklmnopqrstuvwxyz" +
+		"0123456789" + ".-_@;%£")
+
+	var b strings.Builder
+	for i := 0; i < length; i++ {
+		b.WriteRune(chars[m.Intn(len(chars))])
+	}
+
+	str := b.String()
+
+	return str
 }
